@@ -73,6 +73,25 @@ let gameOver = false
 let score = 0
 let highestScore = 0
 
+// levels
+
+let levels = {
+    1: {
+        velocityX: -2,
+        timeout: 1500,
+    },
+    2: {
+        velocityX: -4,
+        timeout: 1000,
+    },
+    3: {
+        velocityX: -6,
+        timeout: 500,
+    }
+}
+
+let currentLevel = 1
+
 window.onload = function() {
     board = document.getElementById("board")
     board.width = boardWidth
@@ -113,61 +132,60 @@ window.onload = function() {
 
 function update() {
     requestAnimationFrame(update)
-
-    if (gameOver) return
+    if (gameOver) {
+        context.fillStyle = 'white'
+        context.font = "20px sans-serif"
+        context.fillText("GAME OVER", 5, 90)
+        context.fillText(`HIGHEST SCORE: ${highestScore}`, 5, 150)
+        return
+    }
 
     context.clearRect(0, 0, boardWidth, boardHeight)
 
+    if (score > 10) currentLevel = 2
+    if (score > 20) currentLevel = 3
+
+    velocityX = levels[currentLevel].velocityX
+    
+    context.fillStyle = 'yellow'
+    context.fillRect(0, cowgirlY + cowgirlHeight, boardWidth, 2)
+    
     velocityY += gravity 
     cowgirl.y += velocityY
     cowgirl.y = Math.max(boardHeight/4, Math.min(cowgirl.y, cowgirlY))
-
+    
     context.fillStyle = 'green'
     context.fillRect(cowgirl.x, cowgirl.y, cowgirl.width, cowgirl.height)
-
-    // context.fillStyle = 'red'
-    // context.fillRect(obstacle1X, obstacle1Y, obstacle1Width, obstacle1Height)
-
-    // context.fillStyle = 'blue'
-    // context.fillRect(obstacle2X, obstacle2Y, obstacle2Width, obstacle2Height)
-
+    
     let currentObstacle = obstacleArray[0] 
-
+    
     for (let i = 0; i < obstacleArray.length; i++) {
         let obstacle = obstacleArray[i]
         obstacle.x += velocityX
         context.fillStyle = obstacle.color
         context.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height)
     }
-
+    
     if (obstacleArray.length > 0 && currentObstacle.x < -currentObstacle.width) {
         obstacleArray.shift()
     }
-
+    
     if (detectCollision(cowgirl, currentObstacle)) {
         gameOver = true
     }
-
+    
     if (!currentObstacle.passed && currentObstacle.x + currentObstacle.width < cowgirl.x) {
         score += 1
         currentObstacle.passed = true 
     }
-
-    if (score > highestScore) {
-        highestScore = score
-    }
-
-    context.fillStyle = 'yellow'
-    context.fillRect(0, cowgirlY + cowgirlHeight, boardWidth, 2)
-
+    
     // score
     context.fillStyle = 'white'
     context.font = "20px sans-serif"
     context.fillText(score, 5, 45)
 
-    if (gameOver) {
-        context.fillText("GAME OVER", 5, 90)
-        context.fillText(`HIGHEST SCORE: ${highestScore}`, 5, 150)
+    if (score > highestScore) {
+        highestScore = score
     }
 }
 
@@ -212,10 +230,12 @@ function moveCowgirl(e) {
     }
 
     if (gameOver) {
+    // if (e.code === 'KeyR' && gameOver) {
         cowgirl.y = cowgirlY
         obstacleArray = []
         score = 0
         gameOver = false
+        currentLevel = 1
     }
 }
 
