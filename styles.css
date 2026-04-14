@@ -4,5 +4,8 @@ body {
 }
 
 #board {
-    background-color: skyblue;
+    background-image: url("./assets/img/Gemini_Generated_Image_o7teepo7teepo7te.png");
+    background-size: cover; 
+    background-position: center;
+    background-repeat: no-repeat;
 }  
